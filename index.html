@@ -1,11 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Software Development Services</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
+#lang-bar{
+  background:#fff;
+  border-bottom:1px solid #e9ecef;
+  padding:8px 20px;
+  text-align:right;
+}
+#lang-bar button{
+  border:1px solid #0d6efd;
+  background:transparent;
+  color:#0d6efd;
+  border-radius:20px;
+  padding:4px 16px;
+  font-size:0.85rem;
+  margin-left:6px;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+#lang-bar button.active{
+  background:#0d6efd;
+  color:#fff;
+}
 #banner-static{
   position:relative;
   text-align:center;
@@ -56,9 +77,17 @@
   0%{transform:translateX(0)}
   100%{transform:translateX(-50%)}
 }
-#request{
-  padding:50px;
+#intro{
+  background:#ffffff;
+  padding:50px 20px;
+  text-align:center;
+  border-bottom:1px solid #e9ecef;
+}
+.service-box{
   background:#f8f9fa;
+  border-radius:12px;
+  padding:20px 10px;
+  height:100%;
 }
 #counters{
   background:#343a40;
@@ -81,116 +110,203 @@
   text-transform:uppercase;
   letter-spacing:1px;
 }
+#request{
+  padding:50px;
+  background:#f8f9fa;
+}
 </style>
 </head>
 <body>
+
+<!-- Language Bar -->
+<div id="lang-bar">
+  <button id="btn-en" class="active" onclick="setLang('en')">🇬🇧 English</button>
+  <button id="btn-ar" onclick="setLang('ar')">🇴🇲 العربية</button>
+</div>
 
 <!-- Static Banner -->
 <div id="banner-static">
   <img src="SDvzsdfvbfzvbz.jpeg" alt="Software Development">
   <div class="overlay">
-    <h1>Software Development Services</h1>
-    <p>Custom software solutions for businesses</p>
+    <h1 id="banner-title">Software Development Services</h1>
+    <p id="banner-sub">Custom software solutions for businesses</p>
   </div>
 </div>
 
 <!-- Moving News Banner -->
 <div id="banner-news">
   <div class="marquee">
-    <span>🚀 New software development services available | Contact us for custom systems | Web and desktop applications</span>
-    <span>🚀 New software development services available | Contact us for custom systems | Web and desktop applications</span>
+    <span id="ticker-text">🚀 New software development services available | Contact us for custom systems | Web and desktop applications</span>
+    <span id="ticker-text2">🚀 New software development services available | Contact us for custom systems | Web and desktop applications</span>
   </div>
 </div>
+
+
 <!-- Counters -->
 <div id="counters">
   <div class="counter-box">
     <div class="counter-number" id="uniqueCount">...</div>
-    <div class="counter-label">👤 Unique Users</div>
+    <div class="counter-label" id="label-unique">👤 Unique Users</div>
   </div>
   <div class="counter-box">
     <div class="counter-number" id="totalCount">...</div>
-    <div class="counter-label">👁️ Total Visits</div>
+    <div class="counter-label" id="label-total">👁️ Total Visits</div>
   </div>
 </div>
-<!-- Introduction Section -->
-<section id="intro" style="background:#ffffff; padding:50px 20px; text-align:center; border-bottom:1px solid #e9ecef;">
+<!-- Introduction -->
+<section id="intro">
   <div class="container">
     <div class="mx-auto" style="max-width:750px;">
-      <h2 style="font-size:1.8rem; font-weight:700; color:#0d6efd; margin-bottom:15px;">
+      <h2 id="intro-title" style="font-size:1.8rem; font-weight:700; color:#0d6efd; margin-bottom:15px;">
         Welcome to Our Software Development Services
       </h2>
-      <p style="font-size:1.1rem; color:#495057; line-height:1.8; margin-bottom:20px;">
-        We build modern, reliable, and efficient software solutions tailored to your needs. 
-        Whether you are a small business or a large organization, we have the expertise to 
+      <p id="intro-desc" style="font-size:1.1rem; color:#495057; line-height:1.8; margin-bottom:20px;">
+        We build modern, reliable, and efficient software solutions tailored to your needs.
+        Whether you are a small business or a large organization, we have the expertise to
         bring your ideas to life.
       </p>
       <div class="row g-3 mt-2">
         <div class="col-6 col-md-3">
-          <div style="background:#f8f9fa; border-radius:12px; padding:20px 10px;">
+          <div class="service-box">
             <div style="font-size:2rem;">🌐</div>
-            <div style="font-weight:600; margin-top:8px; color:#343a40;">Web Applications</div>
-            <div style="font-size:0.85rem; color:#6c757d; margin-top:5px;">Modern & responsive websites</div>
+            <div class="service-title" style="font-weight:600; margin-top:8px; color:#343a40;">Web Applications</div>
+            <div class="service-sub" style="font-size:0.85rem; color:#6c757d; margin-top:5px;">Modern & responsive websites</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
-          <div style="background:#f8f9fa; border-radius:12px; padding:20px 10px;">
+          <div class="service-box">
             <div style="font-size:2rem;">🖥️</div>
-            <div style="font-weight:600; margin-top:8px; color:#343a40;">Desktop Applications</div>
-            <div style="font-size:0.85rem; color:#6c757d; margin-top:5px;">Powerful desktop software</div>
+            <div class="service-title" style="font-weight:600; margin-top:8px; color:#343a40;">Desktop Applications</div>
+            <div class="service-sub" style="font-size:0.85rem; color:#6c757d; margin-top:5px;">Powerful desktop software</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
-          <div style="background:#f8f9fa; border-radius:12px; padding:20px 10px;">
+          <div class="service-box">
             <div style="font-size:2rem;">📱</div>
-            <div style="font-weight:600; margin-top:8px; color:#343a40;">Mobile Apps</div>
-            <div style="font-size:0.85rem; color:#6c757d; margin-top:5px;">Android & iOS apps</div>
+            <div class="service-title" style="font-weight:600; margin-top:8px; color:#343a40;">Mobile Apps</div>
+            <div class="service-sub" style="font-size:0.85rem; color:#6c757d; margin-top:5px;">Android & iOS apps</div>
           </div>
         </div>
         <div class="col-6 col-md-3">
-          <div style="background:#f8f9fa; border-radius:12px; padding:20px 10px;">
+          <div class="service-box">
             <div style="font-size:2rem;">🗄️</div>
-            <div style="font-weight:600; margin-top:8px; color:#343a40;">Database Systems</div>
-            <div style="font-size:0.85rem; color:#6c757d; margin-top:5px;">Secure & scalable databases</div>
+            <div class="service-title" style="font-weight:600; margin-top:8px; color:#343a40;">Database Systems</div>
+            <div class="service-sub" style="font-size:0.85rem; color:#6c757d; margin-top:5px;">Secure & scalable databases</div>
           </div>
         </div>
       </div>
-      <p style="font-size:1rem; color:#6c757d; margin-top:30px; line-height:1.8;">
+      <p id="intro-cta" style="font-size:1rem; color:#6c757d; margin-top:30px; line-height:1.8;">
         Have a project in mind? Fill in the form below and we will get back to you as soon as possible.
       </p>
     </div>
   </div>
 </section>
+
 <!-- Request Form -->
 <section id="request">
   <div class="container">
-    <h2 class="text-center mb-4">Request Software</h2>
+    <h2 class="text-center mb-4" id="form-title">Request Software</h2>
     <div class="mx-auto" style="max-width:600px">
       <div class="mb-3">
-        <label class="form-label">Your Name</label>
+        <label class="form-label" id="label-name">Your Name</label>
         <input id="name" class="form-control">
       </div>
       <div class="mb-3">
-        <label class="form-label">Email</label>
+        <label class="form-label" id="label-email">Email</label>
         <input id="email" class="form-control">
       </div>
       <div class="mb-3">
-        <label class="form-label">Software Details</label>
+        <label class="form-label" id="label-details">Software Details</label>
         <textarea id="details" class="form-control" rows="4"></textarea>
       </div>
-
-      <!-- Buttons -->
       <div class="text-center d-flex justify-content-center gap-3">
-        <button id="waButton" class="btn btn-success btn-lg">
-          📲 Send via WhatsApp
-        </button>
-        <button id="smsButton" class="btn btn-primary btn-lg">
-          💬 Send via SMS
-        </button>
+        <button id="waButton" class="btn btn-success btn-lg">📲 Send via WhatsApp</button>
+        <button id="smsButton" class="btn btn-primary btn-lg">💬 Send via SMS</button>
       </div>
-
     </div>
   </div>
 </section>
+
+<!-- Language Script -->
+<script>
+const translations = {
+  en: {
+    dir: "ltr",
+    bannerTitle: "Software Development Services",
+    bannerSub: "Custom software solutions for businesses",
+    ticker: "🚀 New software development services available | Contact us for custom systems | Web and desktop applications",
+    introTitle: "Welcome to Our Software Development Services",
+    introDesc: "We build modern, reliable, and efficient software solutions tailored to your needs. Whether you are a small business or a large organization, we have the expertise to bring your ideas to life.",
+    introCta: "Have a project in mind? Fill in the form below and we will get back to you as soon as possible.",
+    services: [
+      { title: "Web Applications", sub: "Modern & responsive websites" },
+      { title: "Desktop Applications", sub: "Powerful desktop software" },
+      { title: "Mobile Apps", sub: "Android & iOS apps" },
+      { title: "Database Systems", sub: "Secure & scalable databases" }
+    ],
+    labelUnique: "👤 Unique Users",
+    labelTotal: "👁️ Total Visits",
+    formTitle: "Request Software",
+    labelName: "Your Name",
+    labelEmail: "Email",
+    labelDetails: "Software Details",
+    waBtn: "📲 Send via WhatsApp",
+    smsBtn: "💬 Send via SMS"
+  },
+  ar: {
+    dir: "rtl",
+    bannerTitle: "خدمات تطوير البرمجيات",
+    bannerSub: "حلول برمجية مخصصة للأعمال",
+    ticker: "🚀 خدمات تطوير برمجيات جديدة متاحة | تواصل معنا لأنظمة مخصصة | تطبيقات ويب وسطح المكتب",
+    introTitle: "مرحباً بك في خدمات تطوير البرمجيات",
+    introDesc: "نبني حلولاً برمجية حديثة وموثوقة وفعّالة مصممة خصيصاً لاحتياجاتك. سواء كنت شركة صغيرة أو مؤسسة كبيرة، لدينا الخبرة اللازمة لتحويل أفكارك إلى واقع.",
+    introCta: "هل لديك مشروع في ذهنك؟ املأ النموذج أدناه وسنتواصل معك في أقرب وقت ممكن.",
+    services: [
+      { title: "تطبيقات الويب", sub: "مواقع حديثة ومتجاوبة" },
+      { title: "تطبيقات سطح المكتب", sub: "برامج قوية للحاسوب" },
+      { title: "تطبيقات الجوال", sub: "تطبيقات أندرويد وآيفون" },
+      { title: "أنظمة قواعد البيانات", sub: "قواعد بيانات آمنة وقابلة للتوسع" }
+    ],
+    labelUnique: "👤 المستخدمون الفريدون",
+    labelTotal: "👁️ إجمالي الزيارات",
+    formTitle: "طلب برمجية",
+    labelName: "الاسم",
+    labelEmail: "البريد الإلكتروني",
+    labelDetails: "تفاصيل البرنامج",
+    waBtn: "📲 إرسال عبر واتساب",
+    smsBtn: "💬 إرسال عبر الرسائل"
+  }
+};
+
+function setLang(lang) {
+  const t = translations[lang];
+  document.documentElement.setAttribute("dir", t.dir);
+  document.documentElement.setAttribute("lang", lang);
+  document.getElementById("banner-title").textContent = t.bannerTitle;
+  document.getElementById("banner-sub").textContent = t.bannerSub;
+  document.getElementById("ticker-text").textContent = t.ticker;
+  document.getElementById("ticker-text2").textContent = t.ticker;
+  document.getElementById("intro-title").textContent = t.introTitle;
+  document.getElementById("intro-desc").textContent = t.introDesc;
+  document.getElementById("intro-cta").textContent = t.introCta;
+  const titles = document.querySelectorAll(".service-title");
+  const subs = document.querySelectorAll(".service-sub");
+  t.services.forEach((s, i) => {
+    titles[i].textContent = s.title;
+    subs[i].textContent = s.sub;
+  });
+  document.getElementById("label-unique").textContent = t.labelUnique;
+  document.getElementById("label-total").textContent = t.labelTotal;
+  document.getElementById("form-title").textContent = t.formTitle;
+  document.getElementById("label-name").textContent = t.labelName;
+  document.getElementById("label-email").textContent = t.labelEmail;
+  document.getElementById("label-details").textContent = t.labelDetails;
+  document.getElementById("waButton").textContent = t.waBtn;
+  document.getElementById("smsButton").textContent = t.smsBtn;
+  document.getElementById("btn-en").classList.toggle("active", lang === "en");
+  document.getElementById("btn-ar").classList.toggle("active", lang === "ar");
+}
+</script>
 
 <!-- Firebase -->
 <script type="module">
@@ -211,7 +327,6 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // ── Total Visits: increment every page load ──
   const totalRef = ref(db, "counters/total_visits");
   runTransaction(totalRef, count => (count || 0) + 1).then(result => {
     document.getElementById("totalCount").textContent = result.snapshot.val().toLocaleString();
@@ -219,7 +334,6 @@
     document.getElementById("totalCount").textContent = "N/A";
   });
 
-  // ── Unique Users: increment only once per browser ──
   const uniqueRef = ref(db, "counters/unique_users");
   const isNewUser = !localStorage.getItem("visited_software_page");
   if (isNewUser) {
