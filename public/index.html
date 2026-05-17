@@ -1,0 +1,604 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Dental Clinic Manager</title>
+  <link rel="icon" type="image/png" href="/img/logo.png"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <link href="/css/style.css?v=1777786000" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ───────────────────────────────────────── -->
+<div id="login-screen" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#1a2332 0%,#1a56db 100%);display:flex;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:40px 36px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.35);">
+    <div style="text-align:center;margin-bottom:28px;">
+      <img src="/img/logo.png" style="width:70px;height:70px;border-radius:50%;margin-bottom:12px;"/>
+      <h4 style="color:#1a2332;margin:0;font-weight:700;">Dental Clinic</h4>
+      <p style="color:#64748b;font-size:.85rem;margin:4px 0 0;">Please sign in to continue</p>
+    </div>
+    <div id="login-error" style="display:none;background:#fee2e2;color:#dc2626;border-radius:8px;padding:10px 14px;font-size:.85rem;margin-bottom:16px;"></div>
+    <div style="margin-bottom:14px;">
+      <label style="font-size:.82rem;font-weight:600;color:#374151;display:block;margin-bottom:5px;">Username</label>
+      <input id="login-username" type="text" autocomplete="username"
+        style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:.9rem;outline:none;"
+        onkeydown="if(event.key==='Enter') doLogin()"/>
+    </div>
+    <div style="margin-bottom:22px;">
+      <label style="font-size:.82rem;font-weight:600;color:#374151;display:block;margin-bottom:5px;">Password</label>
+      <input id="login-password" type="text" autocomplete="off"
+        style="width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:.9rem;outline:none;-webkit-text-security:disc;text-security:disc;"
+        onkeydown="if(event.key==='Enter') doLogin()"/>
+    </div>
+    <button onclick="doLogin()" id="login-btn"
+      style="width:100%;padding:11px;background:#1a56db;color:#fff;border:none;border-radius:8px;font-size:.95rem;font-weight:600;cursor:pointer;">
+      Sign In
+    </button>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<nav id="sidebar">
+  <div class="sidebar-brand">
+    <img src="/img/logo.png" alt="Logo" class="sidebar-logo"/>
+    <span class="sidebar-title">DentalClinic</span>
+  </div>
+  <ul class="sidebar-nav">
+    <li><a href="#" class="nav-link active" data-section="dashboard"><i class="fas fa-th-large"></i><span>Dashboard</span></a></li>
+    <li><a href="#" class="nav-link" data-section="patients"><i class="fas fa-user-injured"></i><span>Patients</span></a></li>
+    <li><a href="#" class="nav-link" data-section="appointments"><i class="fas fa-calendar-check"></i><span>Appointments</span></a></li>
+    <li><a href="#" class="nav-link" data-section="treatments"><i class="fas fa-tooth"></i><span>Treatments</span></a></li>
+    <li><a href="#" class="nav-link" data-section="invoices"><i class="fas fa-file-invoice-dollar"></i><span>Billing</span></a></li>
+    <li><a href="#" class="nav-link" data-section="reports"><i class="fas fa-chart-bar"></i><span>Reports</span></a></li>
+    <li><a href="#" class="nav-link" data-section="inventory"><i class="fas fa-boxes"></i><span>Inventory</span></a></li>
+    <li class="mt-auto"><a href="#" class="nav-link" data-section="settings"><i class="fas fa-cog"></i><span>Settings</span></a></li>
+    <li><a href="#" class="nav-link" data-section="about"><i class="fas fa-info-circle"></i><span>About</span></a></li>
+  </ul>
+
+  <div class="sidebar-footer"><small id="clinic-name-sidebar">Dental Clinic</small></div>
+</nav>
+
+<!-- Main -->
+<div id="main-wrapper">
+  <header id="topbar">
+    <button id="sidebar-toggle" class="btn btn-link text-white"><i class="fas fa-bars fa-lg"></i></button>
+    <h5 id="page-title" class="mb-0">Dashboard</h5>
+    <div class="topbar-right d-flex align-items-center gap-2">
+      <span class="badge bg-success"><i class="fas fa-circle me-1"></i>Online</span>
+      <span class="ms-2 text-white" id="current-datetime"></span>
+      <span id="topbar-user" style="color:rgba(255,255,255,.85);font-size:.82rem;display:none;">
+        <i class="fas fa-user-circle me-1"></i><span id="topbar-username"></span>
+      </span>
+      <button onclick="doLogout()" id="logout-btn" style="display:none;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:4px 12px;font-size:.8rem;cursor:pointer;">
+        <i class="fas fa-sign-out-alt me-1"></i>Logout
+      </button>
+    </div>
+  </header>
+  <main id="content-area"></main>
+</div>
+
+<!-- Toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="main-toast" class="toast align-items-center border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body" id="toast-message">Message</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h6 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="confirm-message">Are you sure?</div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-danger btn-sm" id="confirm-ok-btn">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Patient Modal -->
+<div class="modal fade" id="patientModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="patientModalTitle"><i class="fas fa-user-plus me-2"></i>Add Patient</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="patient-id"/>
+        <div class="row g-3">
+          <div class="col-12 d-flex justify-content-center">
+            <div>
+              <div class="patient-photo-upload" id="patient-photo-upload" onclick="document.getElementById('patient-photo-input').click()" title="Click to upload photo">
+                <img id="patient-photo-preview" src="" alt="Photo"/>
+                <i class="fas fa-user" id="patient-photo-icon"></i>
+                <div class="patient-photo-hint"><i class="fas fa-camera me-1"></i>Upload Photo</div>
+              </div>
+              <input type="file" id="patient-photo-input" accept="image/*" style="display:none" onchange="handlePatientPhoto(this)"/>
+              <div class="text-center mt-1">
+                <button type="button" class="btn btn-link btn-sm text-danger p-0" id="patient-photo-remove" onclick="removePatientPhoto()" style="display:none;font-size:.75rem">Remove photo</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-6"><label class="form-label fw-semibold">First Name <span class="req">*</span></label><input type="text" class="form-control" id="patient-first-name" autocomplete="off"/></div>
+          <div class="col-6"><label class="form-label fw-semibold">Last Name <span class="req">*</span></label><input type="text" class="form-control" id="patient-last-name" autocomplete="off"/></div>
+          <div class="col-6"><label class="form-label fw-semibold">Date of Birth <span class="req">*</span></label><input type="date" class="form-control" id="patient-dob" autocomplete="off"/></div>
+          <div class="col-6"><label class="form-label fw-semibold">Gender</label>
+            <select class="form-select" id="patient-gender" autocomplete="off"><option value="">Select...</option><option>Male</option><option>Female</option><option>Other</option></select>
+          </div>
+          <div class="col-6"><label class="form-label fw-semibold">Phone <span class="req">*</span></label><input type="tel" class="form-control" id="patient-phone" autocomplete="off"/></div>
+          <div class="col-6"><label class="form-label fw-semibold">Email</label><input type="text" class="form-control" id="patient-email" autocomplete="off"/></div>
+          <div class="col-6"><label class="form-label fw-semibold">City <span class="req">*</span></label>
+            <input type="text" class="form-control" id="patient-city" list="oman-cities" autocomplete="off" placeholder="e.g. Muscat"/>
+            <datalist id="oman-cities">
+              <option value="Muscat"/><option value="Seeb"/><option value="Salalah"/>
+              <option value="Sohar"/><option value="Nizwa"/><option value="Sur"/>
+              <option value="Ibri"/><option value="Barka"/><option value="Rustaq"/>
+              <option value="Khasab"/><option value="Duqm"/><option value="Adam"/>
+              <option value="Bahla"/><option value="Sinaw"/><option value="Haima"/>
+              <option value="Qurayat"/><option value="Samail"/><option value="Suwaiq"/>
+              <option value="Liwa"/><option value="Yanqul"/><option value="Wadi Kabir"/>
+              <option value="Shinas"/><option value="Muttrah"/><option value="Bowsher"/>
+              <option value="Al Amerat"/><option value="Madinat Al Sultan Qaboos"/>
+            </datalist>
+          </div>
+          <div class="col-6"><label class="form-label fw-semibold">Address <span class="req">*</span></label><input type="text" class="form-control" id="patient-address" autocomplete="off" placeholder="e.g. Building 25, Al Khuwair"/></div>
+          <div class="col-6"><label class="form-label fw-semibold">Medical History</label><textarea class="form-control" id="patient-medical" rows="2" autocomplete="off"></textarea></div>
+          <div class="col-6"><label class="form-label fw-semibold">Allergies</label><textarea class="form-control" id="patient-allergies" rows="2" autocomplete="off"></textarea></div>
+          <div class="col-6"><label class="form-label fw-semibold">Insurance Provider</label><input type="text" class="form-control" id="patient-insurance-provider" autocomplete="off"/></div>
+          <div class="col-6"><label class="form-label fw-semibold">Insurance Number</label><input type="text" class="form-control" id="patient-insurance-number" autocomplete="off"/></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="savePatient()"><i class="fas fa-save me-1"></i>Save Patient</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Patient View Modal -->
+<div class="modal fade" id="patientViewModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="patientViewTitle"><i class="fas fa-user me-2"></i>Patient Profile</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0"><div id="patient-view-content"></div></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-outline-dark" onclick="printPatientSticker()"><i class="fas fa-tag me-1"></i>Print Sticker</button>
+        <button class="btn btn-info" onclick="printPatientProfile()"><i class="fas fa-print me-1"></i>Print Profile</button>
+        <button class="btn btn-warning" id="patient-view-edit-btn"><i class="fas fa-edit me-1"></i>Edit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Appointment Modal -->
+<div class="modal fade" id="appointmentModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="appointmentModalTitle"><i class="fas fa-calendar-plus me-2"></i>New Appointment</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="appt-id"/>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Patient <span class="req">*</span></label>
+            <select class="form-select" id="appt-patient-id" autocomplete="off"></select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Dentist
+              <button type="button" class="btn btn-link btn-sm p-0 ms-2 text-success" onclick="quickAddDentist()" title="Add new dentist"><i class="fas fa-user-plus"></i> Add Dentist</button>
+            </label>
+            <select class="form-select" id="appt-dentist-id" autocomplete="off"><option value="">Select dentist...</option></select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Service</label>
+            <select class="form-select" id="appt-service-id" autocomplete="off"><option value="">Select service...</option></select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Date <span class="req">*</span></label>
+            <input type="date" class="form-control" id="appt-date" autocomplete="off"/>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Time <span class="req">*</span></label>
+            <input type="time" class="form-control" id="appt-time" autocomplete="off"/>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Duration (min)</label>
+            <input type="number" class="form-control" id="appt-duration" value="30" min="15" step="15" autocomplete="off"/>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="appt-status" autocomplete="off">
+              <option value="scheduled">Scheduled</option><option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option><option value="cancelled">Cancelled</option><option value="no-show">No-Show</option>
+            </select>
+          </div>
+          <div class="col-12"><label class="form-label fw-semibold">Notes</label><textarea class="form-control" id="appt-notes" rows="2" autocomplete="off"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-success" onclick="saveAppointment()"><i class="fas fa-save me-1"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Treatment Modal -->
+<div class="modal fade" id="treatmentModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="treatmentModalTitle"><i class="fas fa-tooth me-2"></i>Treatment Record</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="treat-id"/>
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label fw-semibold">Patient <span class="req">*</span></label><select class="form-select" id="treat-patient-id" autocomplete="off"></select></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Dentist</label><select class="form-select" id="treat-dentist-id" autocomplete="off"><option value="">Select dentist...</option></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Date <span class="req">*</span></label><input type="date" class="form-control" id="treat-date" autocomplete="off"/></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Tooth Number(s)</label><input type="text" class="form-control" id="treat-tooth" placeholder="#14, #15" autocomplete="off"/></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Cost (OMR)</label><input type="number" class="form-control" id="treat-cost" min="0" step="0.001" value="0" autocomplete="off"/></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Diagnosis</label><input type="text" class="form-control" id="treat-diagnosis" autocomplete="off"/></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Procedure</label><input type="text" class="form-control" id="treat-procedure" autocomplete="off"/></div>
+          <div class="col-12"><label class="form-label fw-semibold">Notes</label><textarea class="form-control" id="treat-notes" rows="3" autocomplete="off"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-info text-white" onclick="saveTreatment()"><i class="fas fa-save me-1"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Modal -->
+<div class="modal fade" id="invoiceModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title"><i class="fas fa-file-invoice-dollar me-2"></i>Create Invoice</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-4"><label class="form-label fw-semibold">Patient <span class="req">*</span></label><select class="form-select" id="inv-patient-id" autocomplete="off"></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Issue Date <span class="req">*</span></label><input type="date" class="form-control" id="inv-issue-date" autocomplete="off"/></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Due Date</label><input type="date" class="form-control" id="inv-due-date" autocomplete="off"/></div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Invoice Items</label>
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered" id="invoice-items-table">
+                <thead class="table-light"><tr><th style="width:40%">Description</th><th style="width:20%">Service</th><th style="width:10%">Qty</th><th style="width:15%">Unit Price</th><th style="width:10%">Total</th><th style="width:5%"></th></tr></thead>
+                <tbody id="invoice-items-body"></tbody>
+              </table>
+            </div>
+            <button class="btn btn-sm btn-outline-primary" onclick="addInvoiceItem()"><i class="fas fa-plus me-1"></i>Add Item</button>
+          </div>
+          <div class="col-md-8"><label class="form-label fw-semibold">Notes</label><textarea class="form-control" id="inv-notes" rows="2" autocomplete="off"></textarea></div>
+          <div class="col-md-4">
+            <div class="card bg-light">
+              <div class="card-body">
+                <div class="d-flex justify-content-between mb-1"><span>Subtotal:</span><span id="inv-subtotal">OMR 0.000</span></div>
+                <div class="d-flex justify-content-between mb-1 align-items-center"><span>Discount:</span><input type="number" class="form-control form-control-sm" id="inv-discount" style="width:80px" value="0" min="0" step="0.001" oninput="recalcInvoice()" autocomplete="off"/></div>
+                <div class="d-flex justify-content-between mb-1 align-items-center"><span>Tax (%):</span><input type="number" class="form-control form-control-sm" id="inv-tax-rate" style="width:80px" value="0" min="0" oninput="recalcInvoice()" autocomplete="off"/></div>
+                <hr class="my-1"/>
+                <div class="d-flex justify-content-between fw-bold"><span>Total:</span><span id="inv-total">OMR 0.000</span></div>
+                <hr class="my-1"/>
+                <div class="mb-1"><label class="form-label fw-semibold small">Payment Method</label>
+                  <select class="form-select form-select-sm" id="inv-payment-method" autocomplete="off">
+                    <option value="">-- Not Paid --</option><option>Cash</option><option>Credit Card</option><option>Debit Card</option><option>Insurance</option><option>Bank Transfer</option><option>Cheque</option>
+                  </select>
+                </div>
+                <div><label class="form-label fw-semibold small">Amount Paid (OMR)</label><input type="number" class="form-control form-control-sm" id="inv-amount-paid" value="0" min="0" step="0.001" oninput="recalcInvoice()" autocomplete="off"/></div>
+                <div class="d-flex justify-content-between mt-1 text-danger fw-bold"><span>Balance:</span><span id="inv-balance">OMR 0.000</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-warning" onclick="saveInvoice()"><i class="fas fa-save me-1"></i>Save Invoice</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice View Modal -->
+<div class="modal fade" id="invoiceViewModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-warning">
+        <h5 class="modal-title"><i class="fas fa-file-invoice me-2"></i>Invoice</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="invoice-view-content"></div>
+      <div class="modal-footer flex-wrap gap-1">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-success" id="inv-pay-btn"><i class="fas fa-dollar-sign me-1"></i>Record Payment</button>
+        <button class="btn btn-outline-primary" onclick="printBill()"><i class="fas fa-print me-1"></i>Print</button>
+        <button class="btn btn-danger" onclick="downloadBillPDF()"><i class="fas fa-file-pdf me-1"></i>Download PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h6 class="modal-title"><i class="fas fa-dollar-sign me-2"></i>Record Payment</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="pay-invoice-id"/>
+        <div class="mb-3"><label class="form-label fw-semibold">Total</label><input type="text" class="form-control" id="pay-total" readonly autocomplete="off"/></div>
+        <div class="mb-3"><label class="form-label fw-semibold">Amount Paid (OMR) *</label><input type="number" class="form-control" id="pay-amount" min="0" step="0.001" autocomplete="off"/></div>
+        <div><label class="form-label fw-semibold">Payment Method</label>
+          <select class="form-select" id="pay-method" autocomplete="off"><option>Cash</option><option>Credit Card</option><option>Debit Card</option><option>Insurance</option><option>Bank Transfer</option><option>Cheque</option></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-success btn-sm" onclick="submitPayment()"><i class="fas fa-check me-1"></i>Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Staff Modal -->
+<div class="modal fade" id="staffModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-secondary text-white">
+        <h5 class="modal-title" id="staffModalTitle"><i class="fas fa-user-md me-2"></i>Add Staff</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="staff-id"/>
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label fw-semibold">First Name <span class="req">*</span></label><input type="text" class="form-control" id="staff-first-name" autocomplete="off"/></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Last Name <span class="req">*</span></label><input type="text" class="form-control" id="staff-last-name" autocomplete="off"/></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Role <span class="req">*</span></label>
+            <select class="form-select" id="staff-role" autocomplete="off"><option>Dentist</option><option>Orthodontist</option><option>Periodontist</option><option>Endodontist</option><option>Oral Surgeon</option><option>Hygienist</option><option>Assistant</option><option>Receptionist</option><option>Manager</option></select>
+          </div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Specialization</label><input type="text" class="form-control" id="staff-specialization" autocomplete="off"/></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Phone <span class="req">*</span></label><input type="text" class="form-control" id="staff-phone" autocomplete="off"/></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Email</label><input type="text" class="form-control" id="staff-email" autocomplete="off"/></div>
+          <div class="col-12"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="staff-active" checked/><label class="form-check-label" for="staff-active">Active</label></div></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-dark" onclick="saveStaff()"><i class="fas fa-save me-1"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Service Modal -->
+<div class="modal fade" id="serviceModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-secondary text-white">
+        <h5 class="modal-title" id="serviceModalTitle"><i class="fas fa-list-alt me-2"></i>Service</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="service-id"/>
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label fw-semibold">Service Name *</label><input type="text" class="form-control" id="service-name" autocomplete="off"/></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Category</label>
+            <select class="form-select" id="service-category" autocomplete="off"><option value="">Select...</option><option>Preventive</option><option>Diagnostic</option><option>Restorative</option><option>Endodontic</option><option>Surgical</option><option>Prosthetic</option><option>Cosmetic</option><option>Orthodontic</option><option>Implant</option><option>Other</option></select>
+          </div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Duration (min)</label><input type="number" class="form-control" id="service-duration" value="30" min="5" step="5" autocomplete="off"/></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Price (OMR)</label><input type="number" class="form-control" id="service-price" value="0" min="0" step="0.001" autocomplete="off"/></div>
+          <div class="col-12"><label class="form-label fw-semibold">Description</label><textarea class="form-control" id="service-description" rows="2" autocomplete="off"></textarea></div>
+          <div class="col-12"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="service-active" checked/><label class="form-check-label" for="service-active">Active</label></div></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-dark" onclick="saveService()"><i class="fas fa-save me-1"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Inventory Item Modal -->
+<div class="modal fade" id="inventoryItemModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-purple text-white" style="background:linear-gradient(135deg,#7c3aed,#6d28d9)">
+        <h5 class="modal-title" id="invItemModalTitle"><i class="fas fa-plus me-2"></i>Add Inventory Item</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="inv-item-id"/>
+        <div class="row g-3">
+          <div class="col-md-8"><label class="form-label fw-semibold">Item Name *</label><input type="text" class="form-control" id="inv-item-name" autocomplete="off"/></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Unit</label><input type="text" class="form-control" id="inv-item-unit" value="pcs" autocomplete="off" placeholder="pcs, box, kg..."/></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Category</label>
+            <select class="form-select" id="inv-item-category" autocomplete="off">
+              <option value="">Select...</option><option>PPE</option><option>Instruments</option><option>Anesthetics</option><option>Restorative</option><option>Radiology</option><option>Consumables</option><option>Preventive</option><option>Burs</option><option>Impression</option><option>Surgical</option><option>Medications</option><option>Endodontic</option><option>Other</option>
+            </select>
+          </div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Current Stock</label><input type="number" class="form-control" id="inv-item-stock" value="0" min="0" step="0.001" autocomplete="off"/></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Min Stock (Alert level)</label><input type="number" class="form-control" id="inv-item-min-stock" value="0" min="0" step="0.001" autocomplete="off"/></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Unit Cost (OMR)</label><input type="number" class="form-control" id="inv-item-cost" value="0" min="0" step="0.001" autocomplete="off"/></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Supplier</label><input type="text" class="form-control" id="inv-item-supplier" autocomplete="off"/></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Location / Cabinet</label><input type="text" class="form-control" id="inv-item-location" autocomplete="off"/></div>
+          <div class="col-12"><label class="form-label fw-semibold">Notes</label><textarea class="form-control" id="inv-item-notes" rows="2" autocomplete="off"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" style="background:#7c3aed;border-color:#7c3aed" onclick="saveInventoryItem()"><i class="fas fa-save me-1"></i>Save Item</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stock Transaction Modal -->
+<div class="modal fade" id="stockTransactionModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header text-white" style="background:linear-gradient(135deg,#0891b2,#0e7490)">
+        <h5 class="modal-title"><i class="fas fa-exchange-alt me-2"></i>Stock Transaction</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="stock-item-id"/>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Item</label>
+          <input type="text" class="form-control bg-light" id="stock-item-name" readonly/>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Transaction Type *</label>
+            <select class="form-select" id="stock-type" autocomplete="off">
+              <option value="in">Stock In (Receive)</option>
+              <option value="out">Stock Out (Use / Issue)</option>
+              <option value="adjustment">Adjustment (Set exact quantity)</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Quantity *</label>
+            <input type="number" class="form-control" id="stock-qty" min="0.001" step="0.001" placeholder="Enter quantity" autocomplete="off"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Date</label>
+            <input type="date" class="form-control" id="stock-date" autocomplete="off"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Unit Cost (OMR) â€” for Stock In</label>
+            <input type="number" class="form-control" id="stock-unit-cost" min="0" step="0.001" placeholder="Optional" autocomplete="off"/>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Notes / Reference</label>
+            <input type="text" class="form-control" id="stock-notes" placeholder="e.g. PO-2024-001, monthly restock" autocomplete="off"/>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" style="background:#0891b2;border-color:#0891b2" onclick="submitStockTransaction()"><i class="fas fa-check me-1"></i>Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SMS Modal -->
+<div class="modal fade" id="smsModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header text-white" style="background:linear-gradient(135deg,#0891b2,#0369a1)">
+        <h5 class="modal-title"><i class="fas fa-sms me-2"></i>Send SMS to Patient</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="sms-appt-id"/>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Patient</label>
+          <input type="text" class="form-control bg-light" id="sms-patient-name" readonly/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Phone Number *</label>
+          <input type="tel" class="form-control" id="sms-phone" autocomplete="off" placeholder="+968-XXXXXXXX"/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Template</label>
+          <select class="form-select" id="sms-template" onchange="applySmsTemplate(this.value)" autocomplete="off">
+            <option value="booking">Booking Confirmation</option>
+            <option value="reminder">Appointment Reminder</option>
+            <option value="cancellation">Cancellation Notice</option>
+            <option value="custom">Custom Message</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-semibold d-flex justify-content-between">
+            Message
+            <small id="sms-char-count" class="text-muted">0 / 160</small>
+          </label>
+          <textarea class="form-control" id="sms-message" rows="4" oninput="updateSmsCharCount()" autocomplete="off" placeholder="Message text..."></textarea>
+        </div>
+        <div id="sms-status-info" class="alert alert-info small py-2 mb-0" style="display:none"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" style="background:#0891b2;border-color:#0891b2" onclick="submitSendSMS()">
+          <i class="fas fa-paper-plane me-1"></i>Send SMS
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal fade" id="userModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="user-modal-title">Add User</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="user-modal-body"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveUser()"><i class="fas fa-save me-1"></i>Save User</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="/js/app.js?v=1777786000"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
